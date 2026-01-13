@@ -9,7 +9,7 @@ const FallbackScene = dynamic(() => import('../components/FallbackScene'), { ssr
 
 // Configuration - UPDATE THESE WITH YOUR DETAILS
 const CONFIG = {
-  name: "Your Name",
+  name: "Daren Tan",
   website: "https://yourwebsite.com",
   linkedin: "https://linkedin.com/in/yourprofile",
   email: "hello@example.com",

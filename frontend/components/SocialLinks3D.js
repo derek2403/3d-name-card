@@ -1,7 +1,7 @@
 import { Html } from '@react-three/drei';
 
 export default function SocialLinks3D({
-    name = "Your Name",
+    name = "Daren Tan",
     website = "https://example.com",
     linkedin = "https://linkedin.com/in/yourprofile",
     email = "hello@example.com",

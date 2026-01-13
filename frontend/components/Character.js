@@ -1,61 +1,76 @@
-import { useLoader, useFrame } from '@react-three/fiber';
+import { useEffect, useRef, useState } from 'react';
+import { useFrame } from '@react-three/fiber';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import * as THREE from 'three';
-import { useEffect, useRef } from 'react';
 
-export default function Character({ scale = 0.01, position = [0, -1.5, 0] }) {
-  // Use the PBR version which has proper materials
-  const fbx = useLoader(FBXLoader, '/models/base_basic_shaded.fbx');
-  const mixerRef = useRef(null);
-  const groupRef = useRef();
+export default function Character({ scale = 0.015, position = [-0.5, -1.5, 0] }) {
+  const [model, setModel] = useState(null);
+  const modelRef = useRef();
+  const mixerRef = useRef();
 
   useEffect(() => {
-    // Traverse and enhance materials without replacing them
-    fbx.traverse((child) => {
-      if (child.isMesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
+    const loader = new FBXLoader();
+    const textureLoader = new THREE.TextureLoader();
 
-        if (child.material) {
-          if (Array.isArray(child.material)) {
-            child.material.forEach(mat => {
-              if (mat.map) {
-                mat.map.colorSpace = THREE.SRGBColorSpace;
-              }
-              mat.needsUpdate = true;
-            });
-          } else {
-            if (child.material.map) {
-              child.material.map.colorSpace = THREE.SRGBColorSpace;
-            }
-            child.material.needsUpdate = true;
-          }
+    // Load the texture
+    const texture = textureLoader.load('/models/shaded.png');
+    texture.flipY = true;
+    texture.colorSpace = THREE.SRGBColorSpace;
+
+    // Load the animated model from Mixamo
+    loader.load('/models/animations/Talking.fbx', (fbx) => {
+      // Apply texture to all meshes
+      fbx.traverse((child) => {
+        if (child.isMesh) {
+          child.material = new THREE.MeshStandardMaterial({
+            map: texture,
+            roughness: 0.5,
+            metalness: 0.1,
+          });
+          child.castShadow = true;
+          child.receiveShadow = true;
         }
+      });
+
+      // Apply scale directly to the model
+      fbx.scale.setScalar(scale);
+
+      // Setup animation mixer
+      const mixer = new THREE.AnimationMixer(fbx);
+      mixerRef.current = mixer;
+
+      // Play the baked animation
+      if (fbx.animations && fbx.animations.length > 0) {
+        const clip = fbx.animations[0];
+        const action = mixer.clipAction(clip);
+        action.setLoop(THREE.LoopRepeat);
+        action.play();
       }
+
+      setModel(fbx);
     });
 
-    // Setup animation if available in the model
-    if (fbx.animations && fbx.animations.length > 0) {
-      mixerRef.current = new THREE.AnimationMixer(fbx);
-      const action = mixerRef.current.clipAction(fbx.animations[0]);
-      action.play();
-    }
-  }, [fbx]);
+    return () => {
+      if (mixerRef.current) {
+        mixerRef.current.stopAllAction();
+      }
+    };
+  }, [scale]);
 
-  // Update animation mixer
+  // Update animation every frame
   useFrame((state, delta) => {
     if (mixerRef.current) {
       mixerRef.current.update(delta);
     }
   });
 
+  if (!model) return null;
+
   return (
     <primitive
-      ref={groupRef}
-      object={fbx}
-      scale={scale}
+      ref={modelRef}
+      object={model}
       position={position}
-      rotation={[0, 0, 0]}
     />
   );
 }

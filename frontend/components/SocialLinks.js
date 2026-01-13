@@ -1,7 +1,7 @@
 import styles from '../styles/SocialLinks.module.css';
 
 export default function SocialLinks({
-    name = "Your Name",
+    name = "Daren Tan",
     website = "https://example.com",
     linkedin = "https://linkedin.com/in/yourprofile",
     email = "hello@example.com",
