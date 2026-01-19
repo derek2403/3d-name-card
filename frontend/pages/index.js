@@ -10,10 +10,10 @@ const FallbackScene = dynamic(() => import('../components/FallbackScene'), { ssr
 // Configuration - UPDATE THESE WITH YOUR DETAILS
 const CONFIG = {
   name: "Daren Tan",
-  website: "https://yourwebsite.com",
-  linkedin: "https://linkedin.com/in/yourprofile",
-  email: "hello@example.com",
-  calendar: "https://calendly.com/yourprofile"
+  website: "https://alphv.com/",
+  linkedin: "https://www.linkedin.com/in/daren-tan/",
+  email: "daren@alphv.com",
+  calendar: "https://calendar.app.google/pkVAzzcZgxwSsZSe6"
 };
 
 export default function Home() {
@@ -116,7 +116,7 @@ export default function Home() {
         <meta name="description" content={`Connect with ${CONFIG.name} in AR`} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      {cameraPermission === 'granted' && arSupported ? (
+      {cameraPermission === 'granted' ? (
         <ARScene config={CONFIG} />
       ) : (
         <FallbackScene config={CONFIG} />

@@ -3,7 +3,7 @@
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
     overflow: hidden;
 }
 
@@ -85,4 +85,42 @@
         text-align: center;
         font-size: 0.9rem;
     }
+}
+
+.themeSelector {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border-radius: 12px;
+    display: flex;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.themeBtn {
+    border: none;
+    background: transparent;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #444;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.themeBtn:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.themeBtnActive {
+    background: #00d4ff;
+    color: white;
+}
+
+.themeBtnActive:hover {
+    background: #00bce4;
 }

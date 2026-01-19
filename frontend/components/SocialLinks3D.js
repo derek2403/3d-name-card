@@ -1,4 +1,5 @@
 import { Html } from '@react-three/drei';
+import { useThree } from '@react-three/fiber';
 
 export default function SocialLinks3D({
     name = "Daren Tan",
@@ -35,7 +36,7 @@ export default function SocialLinks3D({
         display: 'flex',
         alignItems: 'center',
         gap: '12px',
-        background: 'linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%)',
+        background: 'linear-gradient(135deg, #0066cc 0%, #004c99 100%)',
         color: 'white',
         padding: '14px 24px',
         borderRadius: '50px',
@@ -43,7 +44,9 @@ export default function SocialLinks3D({
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         fontSize: '14px',
         fontWeight: '500',
-        boxShadow: '0 4px 15px rgba(211, 47, 47, 0.4)',
+        fontWeight: '500',
+        boxShadow: '0 4px 15px rgba(0, 102, 204, 0.4)',
+        transition: 'all 0.3s ease',
         transition: 'all 0.3s ease',
         minWidth: '250px',
         cursor: 'pointer',
@@ -75,12 +78,20 @@ export default function SocialLinks3D({
         textShadow: '2px 2px 4px rgba(255, 255, 255, 0.8)',
     };
 
+    const { size } = useThree();
+    const isMobile = size.width < 768; // Adjust threshold as needed
+
+    // Keep side arrangement but pull closer and scale down significantly for mobile
+    const position = isMobile ? [1.1, 0.2, 0] : [2.2, 0, 0];
+    const scale = isMobile ? 0.18 : 0.35;
+    const center = false;
+
     return (
         <Html
-            position={[2.2, 0, 0]}
-            center
+            position={position}
+            center={center}
             transform
-            scale={0.35}
+            scale={scale}
             occlude={false}
             style={{ pointerEvents: 'auto' }}
         >
@@ -95,11 +106,11 @@ export default function SocialLinks3D({
                         style={buttonStyle}
                         onMouseOver={(e) => {
                             e.currentTarget.style.transform = 'translateX(-8px) scale(1.02)';
-                            e.currentTarget.style.boxShadow = '0 8px 25px rgba(211, 47, 47, 0.5)';
+                            e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 102, 204, 0.5)';
                         }}
                         onMouseOut={(e) => {
                             e.currentTarget.style.transform = 'none';
-                            e.currentTarget.style.boxShadow = '0 4px 15px rgba(211, 47, 47, 0.4)';
+                            e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 102, 204, 0.4)';
                         }}
                     >
                         <span style={link.isLinkedIn ? linkedInIconStyle : iconWrapperStyle}>

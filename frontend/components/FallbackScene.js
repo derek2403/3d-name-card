@@ -3,11 +3,31 @@ import { OrbitControls, Environment, ContactShadows } from '@react-three/drei';
 import { Suspense } from 'react';
 import Character from './Character';
 import SocialLinks3D from './SocialLinks3D';
+import EnvironmentBase, { THEME_CONFIG } from './EnvironmentBase';
 import styles from '../styles/Scene.module.css';
+import { useThree } from '@react-three/fiber';
+import { useEffect } from 'react';
 
-function HolographicBase() {
+function ResponsiveCamera() {
+    const { camera, size } = useThree();
+
+    useEffect(() => {
+        const isMobile = size.width < 768;
+        if (isMobile) {
+            camera.position.set(0, 0.5, 5.5); // Move back slightly on mobile
+        } else {
+            camera.position.set(0, 0.5, 4);
+        }
+        camera.updateProjectionMatrix();
+    }, [size, camera]);
+
+    return null;
+}
+import { useState } from 'react';
+
+function HolographicBase({ position = [0, -1.5, 0] }) {
     return (
-        <group position={[0, -1.5, 0]}>
+        <group position={position}>
             {/* Glowing ring */}
             <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
                 <ringGeometry args={[0.8, 1.2, 64]} />
@@ -55,6 +75,9 @@ function LoadingFallback() {
 }
 
 export default function FallbackScene({ config }) {
+    const [currentTheme] = useState('modern');
+    const themeConfig = THEME_CONFIG[currentTheme];
+
     return (
         <div className={styles.container}>
             <Canvas
@@ -62,7 +85,9 @@ export default function FallbackScene({ config }) {
                 camera={{ position: [0, 0.5, 4], fov: 50 }}
                 className={styles.canvas}
             >
-                <color attach="background" args={['#f5f5f5']} />
+                <ResponsiveCamera />
+                <color attach="background" args={[themeConfig.bgColor]} />
+                <fog attach="fog" args={[themeConfig.fogColor, 5, 20]} />
 
                 {/* Lighting */}
                 <ambientLight intensity={0.5} />
@@ -78,7 +103,8 @@ export default function FallbackScene({ config }) {
 
                 <Suspense fallback={<LoadingFallback />}>
                     <Character scale={0.015} position={[-0.5, -1.5, 0]} />
-                    <HolographicBase />
+                    <HolographicBase position={[-0.5, -1.5, 0]} />
+                    <EnvironmentBase theme={currentTheme} />
                     <SocialLinks3D {...config} />
                 </Suspense>
 
