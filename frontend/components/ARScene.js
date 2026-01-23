@@ -3,7 +3,7 @@ import { Suspense, useEffect, useRef, useState } from 'react';
 import Character from './Character';
 import SocialLinks3D from './SocialLinks3D';
 import styles from '../styles/Scene.module.css';
-import { Environment, OrbitControls } from '@react-three/drei';
+import { Environment, OrbitControls, useTexture } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 
 
@@ -16,7 +16,7 @@ function ResponsiveCamera() {
         const isMobile = size.width < 768;
         if (isMobile) {
             // Fallback was 5.5, increasing to 6.4 (~15% smaller)
-            camera.position.set(0, 8, 6.4);
+            camera.position.set(0, 10, 6.4);
         } else {
             camera.position.set(0, 10, 4);
         }
@@ -26,41 +26,34 @@ function ResponsiveCamera() {
     return null;
 }
 
-// Copied from FallbackScene for consistency
-function HolographicBase({ position = [0, -1.5, 0] }) {
+// 3D Card base with card.png as top face
+function Card3D({ position = [0, -1.5, 0] }) {
+    const texture = useTexture('/card.png');
+
+    // Credit card aspect ratio: 85.6mm x 53.98mm ≈ 1.586
+    const cardWidth = 2.5;
+    const cardHeight = cardWidth / 1.586;
+    const cardDepth = 0.08; // Thin card thickness
+
     return (
         <group position={position}>
-            {/* Glowing ring */}
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
-                <ringGeometry args={[0.8, 1.2, 64]} />
+            {/* Main card body */}
+            <mesh position={[0, cardDepth / 2, 0]}>
+                <boxGeometry args={[cardWidth, cardDepth, cardHeight]} />
                 <meshStandardMaterial
-                    color="#00d4ff"
-                    emissive="#00d4ff"
-                    emissiveIntensity={2}
-                    transparent
-                    opacity={0.8}
+                    color="#1a1a2e"
+                    roughness={0.3}
+                    metalness={0.1}
                 />
             </mesh>
-            {/* Inner glow */}
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]}>
-                <circleGeometry args={[0.85, 64]} />
+
+            {/* Top face with card image */}
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, cardDepth + 0.001, 0]}>
+                <planeGeometry args={[cardWidth, cardHeight]} />
                 <meshStandardMaterial
-                    color="#001a33"
-                    emissive="#0066cc"
-                    emissiveIntensity={0.5}
-                    transparent
-                    opacity={0.9}
-                />
-            </mesh>
-            {/* Outer pulse ring */}
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
-                <ringGeometry args={[1.15, 1.25, 64]} />
-                <meshStandardMaterial
-                    color="#00aaff"
-                    emissive="#00aaff"
-                    emissiveIntensity={1.5}
-                    transparent
-                    opacity={0.6}
+                    map={texture}
+                    roughness={0.4}
+                    metalness={0.2}
                 />
             </mesh>
         </group>
@@ -155,7 +148,7 @@ export default function ARScene({ config }) {
 
                 <Suspense fallback={<LoadingFallback />}>
                     <Character scale={0.015} position={[-0.5, -1.5, 0]} rotation={[Math.PI / 2, Math.PI / 2, 0]} />
-                    <HolographicBase position={[-0.5, -1.5, 0]} />
+                    <Card3D position={[-0.5, -1.5, 0]} />
                     <SocialLinks3D {...config} />
                 </Suspense>
 
