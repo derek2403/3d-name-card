@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import * as THREE from 'three';
 
-export default function Character({ scale = 0.015, position = [-0.5, -1.5, 0] }) {
+export default function Character({ scale = 0.015, position = [-0.5, -1.5, 0], rotation = [0, 0, 0] }) {
   const [model, setModel] = useState(null);
   const modelRef = useRef();
   const mixerRef = useRef();

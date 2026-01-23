@@ -16,9 +16,9 @@ function ResponsiveCamera() {
         const isMobile = size.width < 768;
         if (isMobile) {
             // Fallback was 5.5, increasing to 6.4 (~15% smaller)
-            camera.position.set(0, 0.5, 6.4);
+            camera.position.set(0, 8, 6.4);
         } else {
-            camera.position.set(0, 0.5, 4);
+            camera.position.set(0, 10, 4);
         }
         camera.updateProjectionMatrix();
     }, [size, camera]);
@@ -154,7 +154,7 @@ export default function ARScene({ config }) {
                 <ResponsiveCamera />
 
                 <Suspense fallback={<LoadingFallback />}>
-                    <Character scale={0.015} position={[-0.5, -1.5, 0]} />
+                    <Character scale={0.015} position={[-0.5, -1.5, 0]} rotation={[Math.PI / 2, Math.PI / 2, 0]} />
                     <HolographicBase position={[-0.5, -1.5, 0]} />
                     <SocialLinks3D {...config} />
                 </Suspense>
