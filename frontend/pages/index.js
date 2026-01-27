@@ -4,7 +4,6 @@ import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 
 // Dynamic imports to avoid SSR issues with Three.js
-const ARScene = dynamic(() => import('../components/ARScene'), { ssr: false });
 const FallbackScene = dynamic(() => import('../components/FallbackScene'), { ssr: false });
 
 // Configuration - UPDATE THESE WITH YOUR DETAILS
@@ -45,8 +44,8 @@ export default function Home() {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       // Stop the stream immediately, we just needed permission
       stream.getTracks().forEach(track => track.stop());
-      setCameraPermission('granted');
-      setShowPrompt(false);
+      // Redirect to AR page
+      window.location.href = '/ar.html';
     } catch (error) {
       console.log('Camera access denied:', error);
       setCameraPermission('denied');
@@ -116,11 +115,7 @@ export default function Home() {
         <meta name="description" content={`Connect with ${CONFIG.name} in AR`} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      {cameraPermission === 'granted' ? (
-        <ARScene config={CONFIG} />
-      ) : (
-        <FallbackScene config={CONFIG} />
-      )}
+      <FallbackScene config={CONFIG} />
     </>
   );
 }
