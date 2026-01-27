@@ -183,18 +183,20 @@
 			console.error(e);
 		});
 
-		//link buttons - using same links as FallbackScene
+		//link buttons - using custom icon images
 		var geometry = new THREE.PlaneGeometry(0.3, 0.3);
 
-		// Create simple colored materials for each button type
-		// Website - globe/blue
-		var websiteMaterial = new THREE.MeshLambertMaterial({ color: 0x0066cc });
-		// LinkedIn - blue
-		var linkedinMaterial = new THREE.MeshLambertMaterial({ color: 0x0077b5 });
-		// Email - green
-		var emailMaterial = new THREE.MeshLambertMaterial({ color: 0x00aa55 });
-		// Calendar - orange
-		var calendarMaterial = new THREE.MeshLambertMaterial({ color: 0xff6600 });
+		// Load icon textures from content/icon folder
+		var webTexture = new THREE.TextureLoader().load('content/icon/web.png');
+		var linkedinTexture = new THREE.TextureLoader().load('content/icon/linkedin.png');
+		var gmailTexture = new THREE.TextureLoader().load('content/icon/gmail.png');
+		var calendlyTexture = new THREE.TextureLoader().load('content/icon/calendly.png');
+
+		// Create materials with the loaded textures
+		var websiteMaterial = new THREE.MeshLambertMaterial({ map: webTexture, transparent: true });
+		var linkedinMaterial = new THREE.MeshLambertMaterial({ map: linkedinTexture, transparent: true });
+		var emailMaterial = new THREE.MeshLambertMaterial({ map: gmailTexture, transparent: true });
+		var calendarMaterial = new THREE.MeshLambertMaterial({ map: calendlyTexture, transparent: true });
 
 		var groupButton = new THREE.Group();
 
@@ -279,13 +281,13 @@
 
 			// Same links as FallbackScene/SocialLinks3D
 			if (websiteIntersects.length > 0) {
-				window.location.href = 'https://alphv.com/';
+				window.open('https://alphv.com/', '_blank');
 			} else if (linkedinIntersects.length > 0) {
-				window.location.href = 'https://www.linkedin.com/in/daren-tan/';
+				window.open('https://www.linkedin.com/in/daren-tan/', '_blank');
 			} else if (emailIntersects.length > 0) {
-				window.location.href = 'mailto:daren@alphv.com';
+				window.open('mailto:daren@alphv.com', '_blank');
 			} else if (calendarIntersects.length > 0) {
-				window.location.href = 'https://calendar.app.google/pkVAzzcZgxwSsZSe6';
+				window.open('https://calendar.app.google/pkVAzzcZgxwSsZSe6', '_blank');
 			}
 		}
 
