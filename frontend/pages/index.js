@@ -44,8 +44,9 @@ export default function Home() {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       // Stop the stream immediately, we just needed permission
       stream.getTracks().forEach(track => track.stop());
-      // Redirect to AR page
-      window.location.href = '/ar.html';
+      // Redirect to color detection AR page (detects blue card)
+      // Redirect to Hybrid MindAR+Three.js page
+      window.location.href = '/ar-hybrid.html';
     } catch (error) {
       console.log('Camera access denied:', error);
       setCameraPermission('denied');

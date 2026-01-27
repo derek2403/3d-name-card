@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>AR Name Card - Hybrid</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-family: sans-serif;
+            font-size: 20px;
+        }
+    </style>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+            "mindar-image-three": "https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
+        }
+    }
+    </script>
+</head>
+
+<body>
+    <div id="loading">Loading AR...</div>
+    <div id="container"></div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { MindARThree } from 'mindar-image-three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+        const mindarThree = new MindARThree({
+            container: document.querySelector('#container'),
+            imageTargetSrc: 'marker/namecard.mind',
+            // High tolerance settings
+            filterMinCF: 0.0001,
+            filterBeta: 0.001,
+            warmupTolerance: 5,
+            missTolerance: 200, // Wait 200 frames (~4-5s) before handling targetLost. Best way to prevent flickering.
+            uiLoading: 'no', uiScanning: 'no', uiError: 'no'
+        });
+
+        const { renderer, scene, camera } = mindarThree;
+
+        // --- AR.html LIGHTING ---
+        const light = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(light);
+
+        const spotLight = new THREE.SpotLight(0xffffff, 0.7);
+        spotLight.position.set(-2, 3, 5);
+        spotLight.angle = 0.5 * Math.PI / 4;
+        spotLight.penumbra = 1;
+        spotLight.decay = 2;
+        spotLight.distance = 2000;
+        scene.add(spotLight);
+
+        // --- ANCHOR SETUP ---
+        const anchor = mindarThree.addAnchor(0);
+
+        // Transform Group: Rotate 90X to stand up
+        const arWorldRoot = new THREE.Group();
+        arWorldRoot.rotation.x = Math.PI / 2;
+
+        // SAFE IMPLEMENTATION: Attach directly to anchor group.
+        // MindAR will handle showing/hiding, but high missTolerance prevents quick hiding.
+        anchor.group.add(arWorldRoot);
+
+        // --- AR.html CONTENT CONTENT ---
+        // Copying exact logic from ar.html where possible
+
+        var all = new THREE.Group();
+        var mixer = null;
+
+        // Load 3D object
+        var loader = new GLTFLoader();
+        loader.load('content/scene.glb', function (gltf) {
+            all.add(gltf.scene);
+
+            // Scale 1
+            gltf.scene.scale.set(1, 1, 1);
+
+            // Center the model
+            var bbox = new THREE.Box3().setFromObject(gltf.scene);
+            var center = bbox.getCenter(new THREE.Vector3());
+
+            gltf.scene.position.x = -center.x;
+            gltf.scene.position.z = -center.z;
+            gltf.scene.position.y = -bbox.min.y;
+
+            // Setup animations
+            if (gltf.animations && gltf.animations.length > 0) {
+                mixer = new THREE.AnimationMixer(gltf.scene);
+                gltf.animations.forEach(function (clip) {
+                    mixer.clipAction(clip).play();
+                });
+            }
+
+            document.getElementById('loading').style.display = 'none';
+        });
+
+        // Social Buttons (Exact copy from ar.html)
+        var geometry = new THREE.PlaneGeometry(0.3, 0.3);
+        var textureLoader = new THREE.TextureLoader();
+
+        var webTexture = textureLoader.load('content/icon/web.png');
+        var linkedinTexture = textureLoader.load('content/icon/linkedin.png');
+        var gmailTexture = textureLoader.load('content/icon/gmail.png');
+        var calendlyTexture = textureLoader.load('content/icon/calendly.png');
+
+        var websiteMaterial = new THREE.MeshBasicMaterial({ map: webTexture, transparent: true }); // Basic for brightness
+        var linkedinMaterial = new THREE.MeshBasicMaterial({ map: linkedinTexture, transparent: true });
+        var emailMaterial = new THREE.MeshBasicMaterial({ map: gmailTexture, transparent: true });
+        var calendarMaterial = new THREE.MeshBasicMaterial({ map: calendlyTexture, transparent: true });
+
+        var groupButton = new THREE.Group();
+
+        var websiteBtn = new THREE.Mesh(geometry, websiteMaterial);
+        websiteBtn.position.x = -0.6;
+        websiteBtn.userData = { url: 'https://alphv.com/' };
+        groupButton.add(websiteBtn);
+
+        var linkedinBtn = new THREE.Mesh(geometry, linkedinMaterial);
+        linkedinBtn.position.x = -0.20;
+        linkedinBtn.position.y = -0.10;
+        linkedinBtn.userData = { url: 'https://www.linkedin.com/in/daren-tan/' };
+        groupButton.add(linkedinBtn);
+
+        var emailBtn = new THREE.Mesh(geometry, emailMaterial);
+        emailBtn.position.x = 0.20;
+        emailBtn.position.y = -0.10;
+        emailBtn.userData = { url: 'mailto:daren@alphv.com' };
+        groupButton.add(emailBtn);
+
+        var calendarBtn = new THREE.Mesh(geometry, calendarMaterial);
+        calendarBtn.position.x = 0.6;
+        calendarBtn.userData = { url: 'https://calendar.app.google/pkVAzzcZgxwSsZSe6' };
+        groupButton.add(calendarBtn);
+
+        groupButton.rotation.x = -Math.PI / 2;
+        groupButton.position.z = 0.8;
+        all.add(groupButton);
+
+        // Apply ar.html scale
+        all.scale.multiplyScalar(0.8);
+
+        arWorldRoot.add(all);
+
+        // Click Handler (Re-implemented for Three.js module)
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        window.addEventListener('click', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+
+            // Check buttons (in groupButton)
+            const intersects = raycaster.intersectObjects(groupButton.children);
+            if (intersects.length > 0) {
+                const url = intersects[0].object.userData.url;
+                if (url) window.open(url, '_blank');
+            }
+        });
+
+        // Start
+        await mindarThree.start();
+
+        const clock = new THREE.Clock();
+
+        renderer.setAnimationLoop(() => {
+            const delta = clock.getDelta();
+            if (mixer) mixer.update(delta);
+            renderer.render(scene, camera);
+        });
+    </script>
+</body>
+
+</html>

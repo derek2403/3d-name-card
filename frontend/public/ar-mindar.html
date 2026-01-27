@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AR Name Card</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Hide all MindAR UI */
+        .mindar-ui-overlay,
+        .mindar-ui-loading,
+        .mindar-ui-scanning,
+        .a-enter-vr,
+        .a-loader-title {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <a-scene
+        mindar-image="imageTargetSrc: marker/namecard.mind; autoStart: true; uiScanning: no; uiLoading: no; uiError: no; filterMinCF: 0.00001; filterBeta: 0.0001; missTolerance: 100; warmupTolerance: 10;"
+        color-space="sRGB" renderer="colorManagement: true; physicallyCorrectLights: true; antialias: true;"
+        vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" loading-screen="enabled: false">
+        <a-assets>
+            <a-asset-item id="model" src="content/scene.glb"></a-asset-item>
+            <img id="web-icon" src="content/icon/web.png">
+            <img id="linkedin-icon" src="content/icon/linkedin.png">
+            <img id="gmail-icon" src="content/icon/gmail.png">
+            <img id="calendly-icon" src="content/icon/calendly.png">
+        </a-assets>
+
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <!-- Lighting -->
+        <a-light type="ambient" color="#ffffff" intensity="0.8"></a-light>
+        <a-light type="directional" color="#ffffff" intensity="0.6" position="0 5 5"></a-light>
+
+        <a-entity mindar-image-target="targetIndex: 0">
+            <!-- Container rotated 90deg on X to make content stand upright -->
+            <a-entity rotation="-90 0 0" position="0 0 0">
+                <!-- 3D Model - rotated 180 to face correctly -->
+                <a-gltf-model src="#model" position="0 0 0.2" scale="0.4 0.4 0.4" rotation="0 180 0"
+                    animation-mixer="loop: repeat; clampWhenFinished: false"></a-gltf-model>
+
+                <!-- Social Icons in front of model -->
+                <a-image src="#web-icon" position="-0.35 0 0.5" width="0.18" height="0.18" class="clickable"
+                    data-url="https://alphv.com/"></a-image>
+                <a-image src="#linkedin-icon" position="-0.12 0 0.5" width="0.18" height="0.18" class="clickable"
+                    data-url="https://www.linkedin.com/in/daren-tan/"></a-image>
+                <a-image src="#gmail-icon" position="0.12 0 0.5" width="0.18" height="0.18" class="clickable"
+                    data-url="mailto:daren@alphv.com"></a-image>
+                <a-image src="#calendly-icon" position="0.35 0 0.5" width="0.18" height="0.18" class="clickable"
+                    data-url="https://calendar.app.google/pkVAzzcZgxwSsZSe6"></a-image>
+            </a-entity>
+        </a-entity>
+    </a-scene>
+
+    <script>
+        // Handle icon clicks
+        document.querySelectorAll('.clickable').forEach(el => {
+            el.addEventListener('click', function () {
+                const url = this.getAttribute('data-url');
+                if (url) window.open(url, '_blank');
+            });
+        });
+
+        // Once target is found, keep content visible
+        let contentVisible = false;
+        document.addEventListener('DOMContentLoaded', () => {
+            const target = document.querySelector('[mindar-image-target]');
+            if (target) {
+                target.addEventListener('targetFound', () => {
+                    contentVisible = true;
+                    target.object3D.visible = true;
+                });
+                target.addEventListener('targetLost', () => {
+                    // Keep it visible once found
+                    if (contentVisible) {
+                        target.object3D.visible = true;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
