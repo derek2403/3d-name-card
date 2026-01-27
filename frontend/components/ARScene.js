@@ -147,7 +147,7 @@ export default function ARScene({ config }) {
                 <ResponsiveCamera />
 
                 <Suspense fallback={<LoadingFallback />}>
-                    <Character scale={0.015} position={[-0.5, -1.5, 0]} rotation={[Math.PI / 2, Math.PI / 2, 0]} />
+                    <Character scale={0.02} position={[-0.5, -1.5, 0]} rotation={[Math.PI / 2, Math.PI / 2, 0]} />
                     <Card3D position={[-0.5, -1.5, 0]} />
                     <SocialLinks3D {...config} />
                 </Suspense>
